@@ -203,3 +203,52 @@ export function renderBurndownChart(canvasId, days, ideal, actual) {
 export function destroyAll() {
   Object.keys(chartInstances).forEach(destroyChart);
 }
+
+// ── Comparison Velocity ──
+export function renderCompVelocity(canvasId, labels, sp1, sp2, name1, name2) {
+  return createChart(canvasId, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: name1, data: sp1, borderColor: COLORS.accent, backgroundColor: COLORS.accent + '15', fill: true, pointRadius: 4, pointBackgroundColor: COLORS.accent },
+        { label: name2, data: sp2, borderColor: COLORS.cyan, backgroundColor: COLORS.cyan + '15', fill: true, pointRadius: 4, pointBackgroundColor: COLORS.cyan },
+      ],
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } },
+  });
+}
+
+// ── Comparison Radar ──
+export function renderCompRadar(canvasId, s1, s2, name1, name2) {
+  return createChart(canvasId, {
+    type: 'radar',
+    data: {
+      labels: ['Completion', 'Velocity', 'Efficiency', 'Consistency'],
+      datasets: [
+        { label: name1, data: [s1.completion, s1.velocity, s1.efficiency, s1.consistency], backgroundColor: COLORS.accent + '30', borderColor: COLORS.accent, pointBackgroundColor: COLORS.accent, pointRadius: 4 },
+        { label: name2, data: [s2.completion, s2.velocity, s2.efficiency, s2.consistency], backgroundColor: COLORS.cyan + '30', borderColor: COLORS.cyan, pointBackgroundColor: COLORS.cyan, pointRadius: 4 },
+      ],
+    },
+    options: { responsive: true, maintainAspectRatio: false, scales: { r: { beginAtZero: true, max: 100, grid: { color: '#ffffff10' }, angleLines: { color: '#ffffff10' } } }, plugins: { legend: { position: 'top' } } },
+  });
+}
+
+// ── Workload Bar ──
+export function renderWorkloadBar(canvasId, names, activeIssues, activeSP) {
+  return createChart(canvasId, {
+    type: 'bar',
+    data: {
+      labels: names,
+      datasets: [
+        { label: 'Active Issues', data: activeIssues, backgroundColor: COLORS.accent + '80', borderWidth: 0, yAxisID: 'y' },
+        { label: 'Remaining SP', data: activeSP, backgroundColor: COLORS.amber + '80', borderWidth: 0, yAxisID: 'y1' },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: true, position: 'left', title: { display: true, text: 'Issues' } }, y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Story Points' } } },
+    },
+  });
+}

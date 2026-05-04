@@ -1,6 +1,7 @@
 import './style.css';
 import { renderDashboard, getDashboardChartData, renderEmployees, renderEmployeeDetail, getEmployeeChartData, renderSprintAnalysis, getBurndownData, renderIssueTracker, renderTeamOverview, getTeamChartData, renderSettings, searchData } from './views.js';
-import { renderVelocityChart, renderIssueTypePie, renderTimeChart, renderPriorityRadar, renderStatusBar, renderBurndownChart, renderTeamComparisonChart, destroyAll } from './charts.js';
+import { renderLeaderboard, renderComparison, getComparisonChartData, generateNotifications, renderTimeline, renderWorkload, getWorkloadChartData, exportToCSV } from './features.js';
+import { renderVelocityChart, renderIssueTypePie, renderTimeChart, renderPriorityRadar, renderStatusBar, renderBurndownChart, renderTeamComparisonChart, renderCompVelocity, renderCompRadar, renderWorkloadBar, destroyAll } from './charts.js';
 import { employees, allIssues } from './data.js';
 
 // ── State ──
@@ -14,6 +15,9 @@ const searchModal = document.getElementById('searchModal');
 const modalSearchInput = document.getElementById('modalSearchInput');
 const searchResults = document.getElementById('searchResults');
 const toastContainer = document.getElementById('toastContainer');
+const notifPanel = document.getElementById('notifPanel');
+const notifBadge = document.getElementById('notifBadge');
+const exportDropdown = document.getElementById('exportDropdown');
 
 // ── Navigation ──
 function navigate(view, empId = null) {
@@ -21,33 +25,33 @@ function navigate(view, empId = null) {
   currentView = view;
   selectedEmployee = empId;
 
-  // Update nav active state
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const activeNav = document.querySelector(`[data-view="${view}"]`);
   if (activeNav) activeNav.classList.add('active');
 
-  // Update breadcrumb
-  let bcText = view.charAt(0).toUpperCase() + view.slice(1);
+  let bcText = { dashboard: 'Dashboard', employees: 'Employees', leaderboard: 'Leaderboard', sprints: 'Sprint Analysis', issues: 'Issue Tracker', comparison: 'Compare', team: 'Team Overview', workload: 'Workload', timeline: 'Timeline', settings: 'Settings' }[view] || view;
   if (view === 'employee-detail') {
     const emp = employees.find(e => e.id === empId);
     bcText = emp ? emp.name : 'Employee';
   }
   breadcrumb.innerHTML = `<span class="bc-item">JiraPulse</span><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3L9 7L5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="bc-item active">${bcText}</span>`;
 
-  // Render view
   switch (view) {
     case 'dashboard': renderDashboardView(); break;
     case 'employees': renderEmployeesView(); break;
     case 'employee-detail': renderEmployeeDetailView(empId); break;
+    case 'leaderboard': renderLeaderboardView(); break;
     case 'sprints': renderSprintView(); break;
     case 'issues': renderIssuesView(); break;
+    case 'comparison': renderComparisonView(); break;
     case 'team': renderTeamView(); break;
+    case 'workload': renderWorkloadView(); break;
+    case 'timeline': renderTimelineView(); break;
     case 'settings': renderSettingsView(); break;
   }
 
-  // Animate in
   viewContainer.style.animation = 'none';
-  viewContainer.offsetHeight; // reflow
+  viewContainer.offsetHeight;
   viewContainer.style.animation = 'fadeIn .3s ease';
 }
 
@@ -70,12 +74,9 @@ function renderEmployeesView() {
   if (filter) {
     filter.addEventListener('input', (e) => {
       const q = e.target.value.toLowerCase();
-      const grid = document.getElementById('empGrid');
-      const cards = grid.querySelectorAll('.emp-card');
-      cards.forEach(c => {
-        const name = c.querySelector('h3').textContent.toLowerCase();
-        const role = c.querySelector('p').textContent.toLowerCase();
-        c.style.display = (name.includes(q) || role.includes(q)) ? '' : 'none';
+      document.querySelectorAll('#empGrid .emp-card').forEach(c => {
+        const txt = (c.querySelector('h3')?.textContent + c.querySelector('p')?.textContent).toLowerCase();
+        c.style.display = txt.includes(q) ? '' : 'none';
       });
     });
   }
@@ -91,6 +92,13 @@ function renderEmployeeDetailView(empId) {
     renderStatusBar('empStatusBar', d.m);
   }, 50);
   document.getElementById('backBtn')?.addEventListener('click', () => navigate('employees'));
+}
+
+function renderLeaderboardView() {
+  viewContainer.innerHTML = renderLeaderboard();
+  document.querySelectorAll('.podium-card[data-emp],.clickable-row[data-emp]').forEach(el => {
+    el.addEventListener('click', () => navigate('employee-detail', el.dataset.emp));
+  });
 }
 
 function renderSprintView() {
@@ -118,6 +126,37 @@ function renderIssuesView() {
   });
 }
 
+function renderComparisonView(emp1Id, emp2Id) {
+  const e1 = emp1Id || employees[0].id;
+  const e2 = emp2Id || employees[1].id;
+  viewContainer.innerHTML = renderComparison(e1, e2);
+
+  // Set dropdowns
+  const sel1 = document.getElementById('compEmp1');
+  const sel2 = document.getElementById('compEmp2');
+  if (sel1) sel1.value = e1;
+  if (sel2) sel2.value = e2;
+
+  // Render charts
+  const cd = getComparisonChartData(e1, e2);
+  setTimeout(() => {
+    renderCompVelocity('compVelocityChart', cd.labels, cd.sp1, cd.sp2, cd.e1.name, cd.e2.name);
+    renderCompRadar('compRadarChart', cd.s1, cd.s2, cd.e1.name, cd.e2.name);
+  }, 50);
+
+  // Compare button
+  document.getElementById('compareBtn')?.addEventListener('click', () => {
+    const v1 = document.getElementById('compEmp1')?.value;
+    const v2 = document.getElementById('compEmp2')?.value;
+    if (v1 && v2 && v1 !== v2) {
+      renderComparisonView(v1, v2);
+      showToast('Comparison updated', 'success');
+    } else {
+      showToast('Please select two different employees', 'error');
+    }
+  });
+}
+
 function renderTeamView() {
   viewContainer.innerHTML = renderTeamOverview();
   const td = getTeamChartData();
@@ -127,13 +166,23 @@ function renderTeamView() {
   });
 }
 
+function renderWorkloadView() {
+  viewContainer.innerHTML = renderWorkload();
+  const wd = getWorkloadChartData();
+  setTimeout(() => renderWorkloadBar('workloadChart', wd.names, wd.activeIssues, wd.activeSP), 50);
+  document.querySelectorAll('.workload-card[data-emp]').forEach(card => {
+    card.addEventListener('click', () => navigate('employee-detail', card.dataset.emp));
+  });
+}
+
+function renderTimelineView() {
+  viewContainer.innerHTML = renderTimeline();
+}
+
 function renderSettingsView() {
   viewContainer.innerHTML = renderSettings();
   document.querySelectorAll('.toggle').forEach(t => {
-    t.addEventListener('click', () => {
-      t.classList.toggle('active');
-      showToast('Setting updated', 'success');
-    });
+    t.addEventListener('click', () => { t.classList.toggle('active'); showToast('Setting updated', 'success'); });
   });
 }
 
@@ -149,7 +198,6 @@ document.querySelectorAll('.nav-item[data-view]').forEach(item => {
   item.addEventListener('click', (e) => {
     e.preventDefault();
     navigate(item.dataset.view);
-    // Close mobile sidebar
     document.getElementById('sidebar').classList.remove('open');
   });
 });
@@ -158,10 +206,62 @@ document.querySelectorAll('.nav-item[data-view]').forEach(item => {
 document.getElementById('mobileMenu')?.addEventListener('click', () => {
   document.getElementById('sidebar').classList.toggle('open');
 });
-
-// ── Sidebar Toggle ──
 document.getElementById('sidebarToggle')?.addEventListener('click', () => {
   document.getElementById('sidebar').classList.toggle('open');
+});
+
+// ── Theme Toggle ──
+document.getElementById('themeToggle')?.addEventListener('click', () => {
+  document.body.classList.toggle('light');
+  const isLight = document.body.classList.contains('light');
+  localStorage.setItem('jirapulse-theme', isLight ? 'light' : 'dark');
+  showToast(`Switched to ${isLight ? 'light' : 'dark'} mode`, 'info');
+});
+// Restore theme
+if (localStorage.getItem('jirapulse-theme') === 'light') document.body.classList.add('light');
+
+// ── Notifications ──
+const notifs = generateNotifications();
+notifBadge.textContent = notifs.length;
+
+document.getElementById('notifBtn')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  exportDropdown?.classList.remove('open');
+  notifPanel.classList.toggle('open');
+  if (notifPanel.classList.contains('open')) {
+    notifPanel.innerHTML = `<div class="notif-panel-header"><h4>Notifications (${notifs.length})</h4><button id="clearNotifs">Mark all read</button></div>
+    <div class="notif-list">${notifs.map(n => `<div class="notif-item notif-type-${n.type}" ${n.empId ? `data-emp="${n.empId}"` : ''}><div class="notif-icon">${n.icon}</div><div class="notif-body"><div class="notif-msg">${n.msg}</div><div class="notif-time">${n.time}</div></div></div>`).join('')}</div>`;
+    document.getElementById('clearNotifs')?.addEventListener('click', () => {
+      notifBadge.style.display = 'none';
+      showToast('All notifications marked as read', 'success');
+    });
+    notifPanel.querySelectorAll('.notif-item[data-emp]').forEach(item => {
+      item.addEventListener('click', () => {
+        notifPanel.classList.remove('open');
+        navigate('employee-detail', item.dataset.emp);
+      });
+    });
+  }
+});
+
+// ── Export Dropdown ──
+document.getElementById('exportBtn')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  notifPanel?.classList.remove('open');
+  exportDropdown.classList.toggle('open');
+});
+document.querySelectorAll('.export-option').forEach(btn => {
+  btn.addEventListener('click', () => {
+    exportToCSV(btn.dataset.export);
+    exportDropdown.classList.remove('open');
+    showToast(`Exported ${btn.dataset.export} data as CSV`, 'success');
+  });
+});
+
+// ── Close dropdowns on outside click ──
+document.addEventListener('click', () => {
+  notifPanel?.classList.remove('open');
+  exportDropdown?.classList.remove('open');
 });
 
 // ── Search Modal ──
@@ -182,35 +282,19 @@ function closeSearch() { searchModal.classList.remove('active'); }
 
 modalSearchInput?.addEventListener('input', (e) => {
   const q = e.target.value.trim();
-  if (q.length < 2) {
-    searchResults.innerHTML = '<div class="search-empty">Type to search across all data...</div>';
-    return;
-  }
+  if (q.length < 2) { searchResults.innerHTML = '<div class="search-empty">Type to search across all data...</div>'; return; }
   const results = searchData(q);
-  if (results.length === 0) {
-    searchResults.innerHTML = '<div class="search-empty">No results found</div>';
-    return;
-  }
-  searchResults.innerHTML = results.map(r => `
-    <div class="search-result-item" data-type="${r.type}" data-id="${r.id}">
-      <div class="sr-icon" style="background:${r.color}">${r.avatar}</div>
-      <div class="sr-info"><div class="sr-title">${r.title}</div><div class="sr-sub">${r.sub}</div></div>
-    </div>`).join('');
+  if (results.length === 0) { searchResults.innerHTML = '<div class="search-empty">No results found</div>'; return; }
+  searchResults.innerHTML = results.map(r => `<div class="search-result-item" data-type="${r.type}" data-id="${r.id}"><div class="sr-icon" style="background:${r.color}">${r.avatar}</div><div class="sr-info"><div class="sr-title">${r.title}</div><div class="sr-sub">${r.sub}</div></div></div>`).join('');
   searchResults.querySelectorAll('.search-result-item').forEach(item => {
-    item.addEventListener('click', () => {
-      closeSearch();
-      if (item.dataset.type === 'employee') navigate('employee-detail', item.dataset.id);
-    });
+    item.addEventListener('click', () => { closeSearch(); if (item.dataset.type === 'employee') navigate('employee-detail', item.dataset.id); });
   });
 });
 
-// ── Refresh & Export ──
+// ── Refresh ──
 document.getElementById('refreshBtn')?.addEventListener('click', () => {
   showToast('Data refreshed successfully', 'success');
   navigate(currentView, selectedEmployee);
-});
-document.getElementById('exportBtn')?.addEventListener('click', () => {
-  showToast('Report exported as CSV', 'info');
 });
 
 // ── Toast ──
