@@ -3,10 +3,13 @@ import { renderDashboard, getDashboardChartData, renderEmployees, renderEmployee
 import { renderLeaderboard, renderComparison, getComparisonChartData, generateNotifications, renderTimeline, renderWorkload, getWorkloadChartData, exportToCSV } from './features.js';
 import { renderVelocityChart, renderIssueTypePie, renderTimeChart, renderPriorityRadar, renderStatusBar, renderBurndownChart, renderTeamComparisonChart, renderCompVelocity, renderCompRadar, renderWorkloadBar, destroyAll } from './charts.js';
 import { employees, allIssues } from './data.js';
+import { checkHealth, triggerSync, getExportUrl, isBackendAvailable } from './api.js';
 
 // ── State ──
 let currentView = 'dashboard';
 let selectedEmployee = null;
+let backendMode = false;
+
 
 // ── DOM Refs ──
 const viewContainer = document.getElementById('viewContainer');
@@ -292,8 +295,16 @@ modalSearchInput?.addEventListener('input', (e) => {
 });
 
 // ── Refresh ──
-document.getElementById('refreshBtn')?.addEventListener('click', () => {
-  showToast('Data refreshed successfully', 'success');
+document.getElementById('refreshBtn')?.addEventListener('click', async () => {
+  showToast('Syncing data...', 'info');
+  if (backendMode) {
+    const result = await triggerSync();
+    if (result) {
+      showToast(`Synced: ${result.issues || 0} issues, ${result.employees || 0} employees`, 'success');
+    } else {
+      showToast('Sync failed – check Jira configuration', 'error');
+    }
+  }
   navigate(currentView, selectedEmployee);
 });
 
@@ -307,4 +318,19 @@ function showToast(message, type = 'info') {
 }
 
 // ── Init ──
-navigate('dashboard');
+async function init() {
+  // Check backend
+  const health = await checkHealth();
+  if (health) {
+    backendMode = true;
+    const statusEl = document.querySelector('.connection-status span');
+    if (statusEl) statusEl.textContent = health.jira_connected ? 'Jira Connected' : 'Demo Mode';
+    showToast(`Backend connected (${health.total_cached_issues} issues cached)`, 'success');
+  } else {
+    const statusEl = document.querySelector('.connection-status span');
+    if (statusEl) statusEl.textContent = 'Frontend Only';
+  }
+  navigate('dashboard');
+}
+
+init();
