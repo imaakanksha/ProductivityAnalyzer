@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="JiraPulse – AI-powered productivity analytics dashboard for Jira. Analyze employee performance, sprint velocity, story points, and team efficiency in real-time." />
+  <meta name="keywords" content="Jira, productivity, analytics, sprint velocity, story points, employee performance, agile metrics" />
+  <title>JiraPulse – Employee Productivity Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <!-- Ambient Background -->
+  <div class="ambient-bg">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+  </div>
+
+  <!-- App Shell -->
+  <div id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" stroke="url(#logoGrad)" stroke-width="2" fill="none"/>
+              <path d="M14 10L20 13V19L14 22L8 19V13L14 10Z" fill="url(#logoGrad)"/>
+              <defs>
+                <linearGradient id="logoGrad" x1="2" y1="2" x2="26" y2="26">
+                  <stop offset="0%" stop-color="#6C5CE7"/>
+                  <stop offset="100%" stop-color="#00B4D8"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div class="logo-text">
+            <span class="logo-name">JiraPulse</span>
+            <span class="logo-sub">Analytics</span>
+          </div>
+        </div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 5H17M3 10H17M3 15H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <span class="nav-label">Overview</span>
+          <a href="#" class="nav-item active" data-view="dashboard" id="nav-dashboard">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1" y="1" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="10" y="1" width="7" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="10" width="7" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="10" y="7" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="#" class="nav-item" data-view="employees" id="nav-employees">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="5" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M2 16C2 12.134 5.134 9 9 9C12.866 9 16 12.134 16 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Employees</span>
+          </a>
+        </div>
+        <div class="nav-section">
+          <span class="nav-label">Analytics</span>
+          <a href="#" class="nav-item" data-view="sprints" id="nav-sprints">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M1 14L5 8L9 11L13 4L17 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Sprint Analysis</span>
+          </a>
+          <a href="#" class="nav-item" data-view="issues" id="nav-issues">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 9L8 11L12 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Issue Tracker</span>
+          </a>
+          <a href="#" class="nav-item" data-view="team" id="nav-team">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="6" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M1 15C1 12.239 3.239 10 6 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M17 15C17 12.239 14.761 10 12 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 15H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Team Overview</span>
+          </a>
+        </div>
+        <div class="nav-section">
+          <span class="nav-label">Settings</span>
+          <a href="#" class="nav-item" data-view="settings" id="nav-settings">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M9 1V3M9 15V17M1 9H3M15 9H17M3.34 3.34L4.76 4.76M13.24 13.24L14.66 14.66M14.66 3.34L13.24 4.76M4.76 13.24L3.34 14.66" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="connection-status">
+          <div class="status-dot pulse"></div>
+          <span>Jira Connected</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <!-- Top Bar -->
+      <header class="topbar" id="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <path d="M3 6H19M3 11H19M3 16H19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <div class="breadcrumb" id="breadcrumb">
+            <span class="bc-item">JiraPulse</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3L9 7L5 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="bc-item active">Dashboard</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="search-box" id="searchBox">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <input type="text" placeholder="Search employees, issues..." id="globalSearch" autocomplete="off" />
+            <kbd>⌘K</kbd>
+          </div>
+          <div class="topbar-actions">
+            <button class="icon-btn" id="refreshBtn" title="Refresh data">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M15 9A6 6 0 1 1 9 3C11.5 3 13.5 4.5 14.5 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M15 3V7H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="icon-btn" id="exportBtn" title="Export report">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2V12M9 2L5 6M9 2L13 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12V15H15V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- View Container -->
+      <div class="view-container" id="viewContainer">
+        <!-- Views will be injected here by JS -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Search Modal -->
+  <div class="modal-overlay" id="searchModal">
+    <div class="search-modal">
+      <div class="modal-search-box">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M13.5 13.5L18 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <input type="text" id="modalSearchInput" placeholder="Search employees, issues, sprints..." autocomplete="off" />
+        <kbd>ESC</kbd>
+      </div>
+      <div class="search-results" id="searchResults">
+        <div class="search-empty">Type to search across all data...</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
