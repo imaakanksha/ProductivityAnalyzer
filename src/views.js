@@ -153,10 +153,11 @@ function renderIssueRows(issues) {
 export function renderTeamOverview() {
   return `<div class="section-header"><h2>Team Overview</h2></div>
   <div class="chart-grid"><div class="chart-card full-width"><h3>Team Performance Comparison</h3><p class="chart-subtitle">Velocity and completion rates across teams</p><div style="height:300px"><canvas id="teamCompChart"></canvas></div></div></div>
-  ${teams.map(team => {
-    const members = employees.filter(e => e.team === team);
-    return `<div class="team-card"><h3>${team}</h3><p class="team-sub">${members.length} member${members.length > 1 ? 's' : ''}</p>
-    ${members.map((m, i) => {
+  ${teams.slice(0, 10).map(team => {
+    const members = employees.filter(e => e.teamId === team.id);
+    const dept = departments.find(d => d.id === team.dept);
+    return `<div class="team-card"><h3>${team.name}</h3><p class="team-sub">${members.length} member${members.length > 1 ? 's' : ''} · ${dept ? dept.name : ''}</p>
+    ${members.slice(0, 8).map((m, i) => {
       const idx = employees.indexOf(m);
       const met = getOverallMetrics(m.id);
       return `<div class="team-member-row" style="cursor:pointer" data-emp="${m.id}"><div class="tm-avatar" style="background:${getColor(idx)}">${m.avatar}</div><div class="tm-info"><div class="tm-name">${m.name}</div><div class="tm-role">${m.role}</div></div><div class="tm-score text-accent">${met.avgVelocity} SP</div><div class="tm-score" style="min-width:70px"><div class="progress-bar"><div class="fill" style="width:${met.completionRate}%;background:${met.completionRate > 75 ? 'var(--green)' : met.completionRate > 50 ? 'var(--amber)' : 'var(--rose)'}"></div></div><span style="font-size:.65rem;color:var(--text-secondary)">${met.completionRate}%</span></div></div>`;
@@ -165,14 +166,16 @@ export function renderTeamOverview() {
 }
 
 export function getTeamChartData() {
-  const names = teams;
-  const velocities = teams.map(t => {
-    const members = employees.filter(e => e.team === t);
+  const names = teams.slice(0, 10).map(t => t.name);
+  const velocities = teams.slice(0, 10).map(t => {
+    const members = employees.filter(e => e.teamId === t.id);
+    if (!members.length) return 0;
     const avg = members.reduce((s, m) => s + getOverallMetrics(m.id).avgVelocity, 0) / members.length;
     return Math.round(avg);
   });
-  const completionRates = teams.map(t => {
-    const members = employees.filter(e => e.team === t);
+  const completionRates = teams.slice(0, 10).map(t => {
+    const members = employees.filter(e => e.teamId === t.id);
+    if (!members.length) return 0;
     const avg = members.reduce((s, m) => s + getOverallMetrics(m.id).completionRate, 0) / members.length;
     return Math.round(avg);
   });
