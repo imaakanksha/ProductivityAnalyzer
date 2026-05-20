@@ -47,8 +47,12 @@ export function getDashboardChartData() {
 
 // ── Employees View ──
 export function renderEmployees() {
-  return `<div class="section-header"><h2>All Employees</h2><div class="section-actions"><div class="search-box" style="min-width:220px;cursor:text"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input type="text" placeholder="Filter employees..." id="empFilter" style="pointer-events:auto" /></div></div></div>
-  <div class="employee-grid" id="empGrid">${employees.map((e, i) => empCard(e, i)).join('')}</div>`;
+  const deptOpts = departments.map(d => `<option value="${d.name}">${d.name}</option>`).join('');
+  return `<div class="section-header"><h2>All Employees</h2><span class="section-badge">${employees.length} total</span><div class="section-actions">
+    <select id="empDeptFilter" class="comp-select" style="max-width:200px;font-size:.8rem"><option value="">All Departments</option>${deptOpts}</select>
+    <div class="search-box" style="min-width:220px;cursor:text"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input type="text" placeholder="Filter employees..." id="empFilter" style="pointer-events:auto" /></div></div></div>
+  <div class="employee-grid" id="empGrid">${employees.slice(0, 48).map((e, i) => empCard(e, i)).join('')}</div>
+  ${employees.length > 48 ? '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:.85rem">Use search or department filter to find more employees</div>' : ''}`;
 }
 
 // ── Employee Detail View ──
@@ -66,7 +70,7 @@ export function renderEmployeeDetail(empId) {
       <div class="emp-detail-info">
         <h1>${emp.name}</h1>
         <div class="emp-meta">
-          <span>💼 ${emp.role}</span><span>🏢 ${emp.team}</span><span>📧 ${emp.email}</span><span>📅 Joined ${emp.joinDate}</span>
+          <span>💼 ${emp.role}</span><span>🏢 ${emp.team}</span><span>🏛️ ${emp.department || ''}</span><span>📊 ${emp.level || ''}</span><span>📧 ${emp.email}</span><span>📅 Joined ${emp.joinDate}</span>
         </div>
       </div>
     </div>
@@ -201,7 +205,8 @@ export function renderSettings() {
       <div class="setting-row"><div><div class="setting-label">Date Range</div><div class="setting-desc">Default analysis period</div></div><select style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 12px;color:var(--text-primary);font-size:.8rem"><option>Last 3 months</option><option>Last 6 months</option><option>Last year</option></select></div>
     </div>
     <div class="settings-card"><h3>About JiraPulse</h3>
-      <div class="setting-row"><div><div class="setting-label">Version</div><div class="setting-desc">v2.4.0</div></div></div>
+      <div class="setting-row"><div><div class="setting-label">Version</div><div class="setting-desc">v3.0.0 – Enterprise Edition</div></div></div>
+      <div class="setting-row"><div><div class="setting-label">Organization</div><div class="setting-desc">${employees.length} employees · ${departments.length} departments · ${teams.length} teams</div></div></div>
       <div class="setting-row"><div><div class="setting-label">Last Data Sync</div><div class="setting-desc">${new Date().toLocaleString()}</div></div></div>
     </div>
   </div>`;

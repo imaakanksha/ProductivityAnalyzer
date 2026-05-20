@@ -252,3 +252,85 @@ export function renderWorkloadBar(canvasId, names, activeIssues, activeSP) {
     },
   });
 }
+
+// ── Enterprise: Department Velocity ──
+export function renderDeptVelocityChart(canvasId, labels, deptLabels, deptData, colors) {
+  return createChart(canvasId, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: deptLabels.map((name, i) => ({
+        label: name, data: deptData[i],
+        borderColor: colors[i], backgroundColor: colors[i] + '10',
+        fill: false, pointRadius: 3, pointBackgroundColor: colors[i], borderWidth: 2,
+      })),
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } },
+  });
+}
+
+// ── Enterprise: Retro Team Chart ──
+export function renderRetroTeamChart(canvasId, teamData) {
+  return createChart(canvasId, {
+    type: 'bar',
+    data: {
+      labels: teamData.map(t => t.name),
+      datasets: [
+        { label: 'Completed', data: teamData.map(t => t.done), backgroundColor: COLORS.green + '80', borderWidth: 0 },
+        { label: 'Not Done', data: teamData.map(t => t.notDone), backgroundColor: COLORS.rose + '60', borderWidth: 0 },
+      ],
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } },
+  });
+}
+
+// ── Enterprise: Retro Carry-Over ──
+export function renderRetroCarryChart(canvasId, carryByType) {
+  return createChart(canvasId, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(carryByType),
+      datasets: [{ data: Object.values(carryByType), backgroundColor: [COLORS.accent, COLORS.cyan, COLORS.rose, COLORS.purple, COLORS.amber], borderWidth: 0, hoverOffset: 8 }],
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom' } } },
+  });
+}
+
+// ── Enterprise: Capacity Bar ──
+export function renderCapacityBarChart(canvasId, labels, capacity, planned) {
+  return createChart(canvasId, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Capacity (hrs)', data: capacity, backgroundColor: COLORS.green + '50', borderColor: COLORS.green, borderWidth: 1 },
+        { label: 'Planned (hrs)', data: planned, backgroundColor: COLORS.accent + '70', borderColor: COLORS.accent, borderWidth: 1 },
+      ],
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Hours' } } } },
+  });
+}
+
+// ── Enterprise: Risk by Team ──
+export function renderRiskTeamChart(canvasId, labels, values) {
+  return createChart(canvasId, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label: 'Blocked Issues', data: values, backgroundColor: COLORS.rose + '70', borderColor: COLORS.rose, borderWidth: 1, barThickness: 20 }],
+    },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true }, y: { grid: { display: false } } } },
+  });
+}
+
+// ── Enterprise: Risk Age Distribution ──
+export function renderRiskAgeChart(canvasId, labels, values) {
+  return createChart(canvasId, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label: 'Issues', data: values, backgroundColor: [COLORS.green + '80', COLORS.cyan + '80', COLORS.amber + '80', COLORS.rose + '80', '#ff2d5570'], borderWidth: 0 }],
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } },
+  });
+}

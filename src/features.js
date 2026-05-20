@@ -1,4 +1,4 @@
-import { employees, sprints, allIssues, teams, getOverallMetrics, getSprintMetrics, getEmployeeIssues } from './data.js';
+import { employees, sprints, allIssues, teams, teamNames, departments, getOverallMetrics, getSprintMetrics, getEmployeeIssues } from './data.js';
 
 const avatarColors = ['#6C5CE7','#00B4D8','#00C9A7','#FFB347','#FF6B8A','#A78BFA','#F97316','#14B8A6','#EC4899','#8B5CF6','#06B6D4','#10B981'];
 function getColor(i) { return avatarColors[i % avatarColors.length]; }

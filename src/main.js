@@ -1,7 +1,8 @@
 import './style.css';
 import { renderDashboard, getDashboardChartData, renderEmployees, renderEmployeeDetail, getEmployeeChartData, renderSprintAnalysis, getBurndownData, renderIssueTracker, renderTeamOverview, getTeamChartData, renderSettings, searchData } from './views.js';
 import { renderLeaderboard, renderComparison, getComparisonChartData, generateNotifications, renderTimeline, renderWorkload, getWorkloadChartData, exportToCSV } from './features.js';
-import { renderVelocityChart, renderIssueTypePie, renderTimeChart, renderPriorityRadar, renderStatusBar, renderBurndownChart, renderTeamComparisonChart, renderCompVelocity, renderCompRadar, renderWorkloadBar, destroyAll } from './charts.js';
+import { renderExecutive, getExecChartData, renderSprintRetro, getRetroChartData, renderCapacity, getCapacityChartData, renderRisk, getRiskChartData, renderOKR } from './enterprise.js';
+import { renderVelocityChart, renderIssueTypePie, renderTimeChart, renderPriorityRadar, renderStatusBar, renderBurndownChart, renderTeamComparisonChart, renderCompVelocity, renderCompRadar, renderWorkloadBar, renderDeptVelocityChart, renderRetroTeamChart, renderRetroCarryChart, renderCapacityBarChart, renderRiskTeamChart, renderRiskAgeChart, destroyAll } from './charts.js';
 import { employees, allIssues } from './data.js';
 import { checkHealth, triggerSync, getExportUrl, isBackendAvailable } from './api.js';
 
@@ -32,7 +33,7 @@ function navigate(view, empId = null) {
   const activeNav = document.querySelector(`[data-view="${view}"]`);
   if (activeNav) activeNav.classList.add('active');
 
-  let bcText = { dashboard: 'Dashboard', employees: 'Employees', leaderboard: 'Leaderboard', sprints: 'Sprint Analysis', issues: 'Issue Tracker', comparison: 'Compare', team: 'Team Overview', workload: 'Workload', timeline: 'Timeline', settings: 'Settings' }[view] || view;
+  let bcText = { dashboard: 'Dashboard', employees: 'Employees', leaderboard: 'Leaderboard', sprints: 'Sprint Analysis', issues: 'Issue Tracker', comparison: 'Compare', team: 'Team Overview', workload: 'Workload', timeline: 'Timeline', executive: 'Executive Summary', retro: 'Sprint Retrospective', capacity: 'Capacity Planning', risk: 'Risk & Blockers', okr: 'OKR & Goals', settings: 'Settings' }[view] || view;
   if (view === 'employee-detail') {
     const emp = employees.find(e => e.id === empId);
     bcText = emp ? emp.name : 'Employee';
@@ -50,6 +51,11 @@ function navigate(view, empId = null) {
     case 'team': renderTeamView(); break;
     case 'workload': renderWorkloadView(); break;
     case 'timeline': renderTimelineView(); break;
+    case 'executive': renderExecutiveView(); break;
+    case 'retro': renderRetroView(); break;
+    case 'capacity': renderCapacityView(); break;
+    case 'risk': renderRiskView(); break;
+    case 'okr': renderOKRView(); break;
     case 'settings': renderSettingsView(); break;
   }
 
@@ -74,15 +80,19 @@ function renderEmployeesView() {
   viewContainer.innerHTML = renderEmployees();
   bindEmployeeCards();
   const filter = document.getElementById('empFilter');
-  if (filter) {
-    filter.addEventListener('input', (e) => {
-      const q = e.target.value.toLowerCase();
-      document.querySelectorAll('#empGrid .emp-card').forEach(c => {
-        const txt = (c.querySelector('h3')?.textContent + c.querySelector('p')?.textContent).toLowerCase();
-        c.style.display = txt.includes(q) ? '' : 'none';
-      });
+  const deptFilter = document.getElementById('empDeptFilter');
+  function applyFilters() {
+    const q = (filter?.value || '').toLowerCase();
+    const dept = deptFilter?.value || '';
+    document.querySelectorAll('#empGrid .emp-card').forEach(c => {
+      const txt = (c.querySelector('h3')?.textContent + c.querySelector('p')?.textContent).toLowerCase();
+      const matchText = !q || txt.includes(q);
+      const matchDept = !dept || txt.includes(dept.toLowerCase());
+      c.style.display = matchText && matchDept ? '' : 'none';
     });
   }
+  if (filter) filter.addEventListener('input', applyFilters);
+  if (deptFilter) deptFilter.addEventListener('change', applyFilters);
 }
 
 function renderEmployeeDetailView(empId) {
@@ -180,6 +190,44 @@ function renderWorkloadView() {
 
 function renderTimelineView() {
   viewContainer.innerHTML = renderTimeline();
+}
+
+function renderExecutiveView() {
+  viewContainer.innerHTML = renderExecutive();
+  const d = getExecChartData();
+  setTimeout(() => renderDeptVelocityChart('execDeptVelocity', d.labels, d.deptLabels, d.deptData, d.colors), 50);
+}
+
+function renderRetroView(sprintId) {
+  viewContainer.innerHTML = renderSprintRetro(sprintId);
+  const d = getRetroChartData(sprintId);
+  setTimeout(() => {
+    renderRetroTeamChart('retroTeamChart', d.teamData);
+    renderRetroCarryChart('retroCarryChart', d.carryByType);
+  }, 50);
+  document.getElementById('retroSprintSelect')?.addEventListener('change', (e) => {
+    renderRetroView(e.target.value);
+    showToast('Sprint retrospective updated', 'info');
+  });
+}
+
+function renderCapacityView() {
+  viewContainer.innerHTML = renderCapacity();
+  const d = getCapacityChartData();
+  setTimeout(() => renderCapacityBarChart('capacityChart', d.labels, d.capacity, d.planned), 50);
+}
+
+function renderRiskView() {
+  viewContainer.innerHTML = renderRisk();
+  const d = getRiskChartData();
+  setTimeout(() => {
+    renderRiskTeamChart('riskTeamChart', d.teamLabels, d.teamValues);
+    renderRiskAgeChart('riskAgeChart', d.ageLabels, d.ageValues);
+  }, 50);
+}
+
+function renderOKRView() {
+  viewContainer.innerHTML = renderOKR();
 }
 
 function renderSettingsView() {

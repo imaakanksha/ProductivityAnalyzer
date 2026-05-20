@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="JiraPulse – AI-powered productivity analytics dashboard for Jira. Analyze employee performance, sprint velocity, story points, and team efficiency in real-time." />
-  <meta name="keywords" content="Jira, productivity, analytics, sprint velocity, story points, employee performance, agile metrics" />
-  <title>JiraPulse – Employee Productivity Analyzer</title>
+  <meta name="description" content="JiraPulse Enterprise – AI-powered productivity analytics platform for large organizations. Analyze team performance, sprint velocity, OKRs, capacity planning, and risk management across departments." />
+  <meta name="keywords" content="Jira, productivity, enterprise, analytics, sprint velocity, story points, team performance, agile metrics, OKR, capacity planning" />
+  <title>JiraPulse Enterprise – Productivity Analyzer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -40,7 +40,7 @@
           </div>
           <div class="logo-text">
             <span class="logo-name">JiraPulse</span>
-            <span class="logo-sub">Analytics</span>
+            <span class="logo-sub">Enterprise</span>
           </div>
         </div>
         <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
@@ -91,6 +91,29 @@
           <a href="#" class="nav-item" data-view="timeline" id="nav-timeline">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2V16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="5" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="13" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M11 5H15M7 13H3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span>Timeline</span>
+          </a>
+        </div>
+        <div class="nav-section">
+          <span class="nav-label">Enterprise</span>
+          <a href="#" class="nav-item" data-view="executive" id="nav-executive">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M6 10V12M9 7V12M12 9V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Executive Summary</span>
+          </a>
+          <a href="#" class="nav-item" data-view="retro" id="nav-retro">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M9 5V9L12 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Sprint Retro</span>
+          </a>
+          <a href="#" class="nav-item" data-view="capacity" id="nav-capacity">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="6" width="4" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="7" y="3" width="4" height="13" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="8" width="4" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>Capacity Planning</span>
+          </a>
+          <a href="#" class="nav-item" data-view="risk" id="nav-risk">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2L16 15H2L9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 7V10M9 12V12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Risk & Blockers</span>
+          </a>
+          <a href="#" class="nav-item" data-view="okr" id="nav-okr">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="4" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="9" r="1.5" fill="currentColor"/></svg>
+            <span>OKR & Goals</span>
           </a>
         </div>
         <div class="nav-section">
