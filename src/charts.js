@@ -334,3 +334,30 @@ export function renderRiskAgeChart(canvasId, labels, values) {
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } },
   });
 }
+
+// ── Enterprise: Bugs by Sprint ──
+export function renderBugsBySprintChart(canvasId, data) {
+  return createChart(canvasId, {
+    type: 'bar',
+    data: {
+      labels: data.map(d => d.sprint.replace('Sprint ', '')),
+      datasets: [
+        { label: 'Fixed', data: data.map(d => d.fixed), backgroundColor: COLORS.green + '80', borderWidth: 0 },
+        { label: 'Open', data: data.map(d => d.open), backgroundColor: COLORS.rose + '60', borderWidth: 0 },
+      ],
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } },
+  });
+}
+
+// ── Enterprise: Bugs by Priority ──
+export function renderBugsByPriorityChart(canvasId, data) {
+  return createChart(canvasId, {
+    type: 'bar',
+    data: {
+      labels: ['Critical', 'High', 'Medium', 'Low'],
+      datasets: [{ data: [data.critical, data.high, data.medium, data.low], backgroundColor: [COLORS.rose + '90', COLORS.amber + '90', COLORS.cyan + '90', '#5a5c7280'], borderWidth: 0, barThickness: 32 }],
+    },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true }, y: { grid: { display: false } } } },
+  });
+}

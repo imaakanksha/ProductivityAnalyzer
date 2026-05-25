@@ -2,7 +2,8 @@ import './style.css';
 import { renderDashboard, getDashboardChartData, renderEmployees, renderEmployeeDetail, getEmployeeChartData, renderSprintAnalysis, getBurndownData, renderIssueTracker, renderTeamOverview, getTeamChartData, renderSettings, searchData } from './views.js';
 import { renderLeaderboard, renderComparison, getComparisonChartData, generateNotifications, renderTimeline, renderWorkload, getWorkloadChartData, exportToCSV } from './features.js';
 import { renderExecutive, getExecChartData, renderSprintRetro, getRetroChartData, renderCapacity, getCapacityChartData, renderRisk, getRiskChartData, renderOKR } from './enterprise.js';
-import { renderVelocityChart, renderIssueTypePie, renderTimeChart, renderPriorityRadar, renderStatusBar, renderBurndownChart, renderTeamComparisonChart, renderCompVelocity, renderCompRadar, renderWorkloadBar, renderDeptVelocityChart, renderRetroTeamChart, renderRetroCarryChart, renderCapacityBarChart, renderRiskTeamChart, renderRiskAgeChart, destroyAll } from './charts.js';
+import { renderPerformanceReview, getPerformanceData, renderBugQuality, getBugChartData } from './insights.js';
+import { renderVelocityChart, renderIssueTypePie, renderTimeChart, renderPriorityRadar, renderStatusBar, renderBurndownChart, renderTeamComparisonChart, renderCompVelocity, renderCompRadar, renderWorkloadBar, renderDeptVelocityChart, renderRetroTeamChart, renderRetroCarryChart, renderCapacityBarChart, renderRiskTeamChart, renderRiskAgeChart, renderBugsBySprintChart, renderBugsByPriorityChart, destroyAll } from './charts.js';
 import { employees, allIssues } from './data.js';
 import { checkHealth, triggerSync, getExportUrl, isBackendAvailable } from './api.js';
 
@@ -33,7 +34,7 @@ function navigate(view, empId = null) {
   const activeNav = document.querySelector(`[data-view="${view}"]`);
   if (activeNav) activeNav.classList.add('active');
 
-  let bcText = { dashboard: 'Dashboard', employees: 'Employees', leaderboard: 'Leaderboard', sprints: 'Sprint Analysis', issues: 'Issue Tracker', comparison: 'Compare', team: 'Team Overview', workload: 'Workload', timeline: 'Timeline', executive: 'Executive Summary', retro: 'Sprint Retrospective', capacity: 'Capacity Planning', risk: 'Risk & Blockers', okr: 'OKR & Goals', settings: 'Settings' }[view] || view;
+  let bcText = { dashboard: 'Dashboard', employees: 'Employees', leaderboard: 'Leaderboard', sprints: 'Sprint Analysis', issues: 'Issue Tracker', comparison: 'Compare', team: 'Team Overview', workload: 'Workload', timeline: 'Timeline', executive: 'Executive Summary', retro: 'Sprint Retrospective', capacity: 'Capacity Planning', risk: 'Risk & Blockers', okr: 'OKR & Goals', performance: 'Performance Reviews', bugs: 'Bug Quality', settings: 'Settings' }[view] || view;
   if (view === 'employee-detail') {
     const emp = employees.find(e => e.id === empId);
     bcText = emp ? emp.name : 'Employee';
@@ -56,6 +57,8 @@ function navigate(view, empId = null) {
     case 'capacity': renderCapacityView(); break;
     case 'risk': renderRiskView(); break;
     case 'okr': renderOKRView(); break;
+    case 'performance': renderPerformanceView(); break;
+    case 'bugs': renderBugQualityView(); break;
     case 'settings': renderSettingsView(); break;
   }
 
@@ -228,6 +231,24 @@ function renderRiskView() {
 
 function renderOKRView() {
   viewContainer.innerHTML = renderOKR();
+}
+
+function renderPerformanceView(teamId) {
+  viewContainer.innerHTML = renderPerformanceReview(teamId);
+  bindEmployeeCards();
+  document.getElementById('perfTeamSelect')?.addEventListener('change', (e) => {
+    renderPerformanceView(e.target.value || null);
+    showToast('Team filter updated', 'info');
+  });
+}
+
+function renderBugQualityView() {
+  viewContainer.innerHTML = renderBugQuality();
+  const d = getBugChartData();
+  setTimeout(() => {
+    renderBugsBySprintChart('bugSprintChart', d.bugsBySprint);
+    renderBugsByPriorityChart('bugPriorityChart', d.bugsByPriority);
+  }, 50);
 }
 
 function renderSettingsView() {

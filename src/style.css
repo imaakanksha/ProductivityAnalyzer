@@ -412,3 +412,80 @@ body.light .sidebar{background:#ffffff}
 .kr-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .kr-title{font-size:.8rem;font-weight:500}
 .kr-metric{font-size:.7rem;color:var(--text-secondary);font-style:italic}
+
+/* ── Performance Reviews ── */
+.perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-bottom:28px}
+.perf-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;transition:var(--transition);position:relative;overflow:hidden}
+.perf-card:hover{border-color:var(--border-hover);transform:translateY(-2px);box-shadow:var(--shadow)}
+.perf-card-header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.perf-band{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.perf-band.top{background:#00c9a718;color:var(--green)}
+.perf-band.meets{background:#00b4d818;color:var(--cyan)}
+.perf-band.needs{background:#ff6b8a18;color:var(--rose)}
+.perf-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.perf-metric{text-align:center;padding:8px 0;background:var(--bg-elevated);border-radius:var(--radius-sm)}
+.perf-metric .pm-val{font-size:1rem;font-weight:700;display:block}
+.perf-metric .pm-lbl{font-size:.6rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px}
+.sparkline{display:inline-block;vertical-align:middle}
+
+/* ── Bug Quality ── */
+.bug-summary{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.bug-stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.bug-stat-card .bsc-val{font-size:1.5rem;font-weight:800;display:block;margin-bottom:4px}
+.bug-stat-card .bsc-lbl{font-size:.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px}
+
+/* ── Animated KPI Counters ── */
+.kpi-value{transition:color .3s ease}
+.kpi-card{animation:kpiSlideIn .4s ease both}
+.kpi-card:nth-child(1){animation-delay:.05s}
+.kpi-card:nth-child(2){animation-delay:.1s}
+.kpi-card:nth-child(3){animation-delay:.15s}
+.kpi-card:nth-child(4){animation-delay:.2s}
+.kpi-card:nth-child(5){animation-delay:.25s}
+.kpi-card:nth-child(6){animation-delay:.3s}
+@keyframes kpiSlideIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Chart Card Entrance ── */
+.chart-card{animation:chartFadeIn .5s ease both}
+.chart-card:nth-child(1){animation-delay:.1s}
+.chart-card:nth-child(2){animation-delay:.2s}
+.chart-card:nth-child(3){animation-delay:.3s}
+.chart-card:nth-child(4){animation-delay:.4s}
+@keyframes chartFadeIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+
+/* ── Employee Card Stagger ── */
+.emp-card{animation:empCardIn .3s ease both}
+@keyframes empCardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.employee-grid .emp-card:nth-child(1){animation-delay:.03s}
+.employee-grid .emp-card:nth-child(2){animation-delay:.06s}
+.employee-grid .emp-card:nth-child(3){animation-delay:.09s}
+.employee-grid .emp-card:nth-child(4){animation-delay:.12s}
+.employee-grid .emp-card:nth-child(5){animation-delay:.15s}
+.employee-grid .emp-card:nth-child(6){animation-delay:.18s}
+
+/* ── Table Row Entrance ── */
+tbody tr{animation:rowSlide .25s ease both}
+@keyframes rowSlide{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── Dept Card Stagger ── */
+.dept-card{animation:empCardIn .35s ease both}
+.dept-grid .dept-card:nth-child(1){animation-delay:.05s}
+.dept-grid .dept-card:nth-child(2){animation-delay:.1s}
+.dept-grid .dept-card:nth-child(3){animation-delay:.15s}
+.dept-grid .dept-card:nth-child(4){animation-delay:.2s}
+.dept-grid .dept-card:nth-child(5){animation-delay:.25s}
+.dept-grid .dept-card:nth-child(6){animation-delay:.3s}
+.dept-grid .dept-card:nth-child(7){animation-delay:.35s}
+.dept-grid .dept-card:nth-child(8){animation-delay:.4s}
+
+/* ── OKR Card Stagger ── */
+.okr-card{animation:empCardIn .35s ease both}
+.okr-grid .okr-card:nth-child(1){animation-delay:.05s}
+.okr-grid .okr-card:nth-child(2){animation-delay:.1s}
+.okr-grid .okr-card:nth-child(3){animation-delay:.15s}
+.okr-grid .okr-card:nth-child(4){animation-delay:.2s}
+.okr-grid .okr-card:nth-child(5){animation-delay:.25s}
+
+/* ── Pulse animation for live indicators ── */
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:livePulse 2s ease infinite}
+@keyframes livePulse{0%,100%{box-shadow:0 0 0 0 #00c9a760}50%{box-shadow:0 0 0 8px #00c9a700}}
